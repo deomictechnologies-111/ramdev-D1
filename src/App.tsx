@@ -88,6 +88,20 @@ const TESTIMONIALS = [
 
 // --- Components ---
 
+const Logo = () => (
+  <div className="flex items-center gap-3 group cursor-pointer">
+    <div className="relative flex items-end gap-1 h-8">
+      <div className="w-1.5 h-4 gold-gradient rounded-sm transform group-hover:scale-y-110 transition-transform duration-300" />
+      <div className="w-1.5 h-7 gold-gradient rounded-sm transform group-hover:scale-y-110 transition-transform duration-300 delay-75" />
+      <div className="w-1.5 h-5 gold-gradient rounded-sm transform group-hover:scale-y-110 transition-transform duration-300 delay-150" />
+    </div>
+    <div className="flex flex-col">
+      <span className="text-xl font-serif font-bold tracking-[0.2em] text-white leading-none">RAMDEV</span>
+      <span className="text-[8px] tracking-[0.3em] text-gold font-bold uppercase">Developers & Builders</span>
+    </div>
+  </div>
+);
+
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -101,12 +115,7 @@ const Navbar = () => {
   return (
     <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${isScrolled ? 'glass-nav py-4' : 'bg-transparent py-8'}`}>
       <div className="container mx-auto px-6 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <div className="w-10 h-10 gold-gradient rounded-full flex items-center justify-center">
-            <span className="text-black font-bold text-xl">R</span>
-          </div>
-          <span className="text-2xl font-serif font-bold tracking-widest text-white uppercase">Ramdev Builders</span>
-        </div>
+        <Logo />
 
         <div className="hidden lg:flex items-center gap-10">
           {['Home', 'About', 'Projects', 'Amenities', 'Gallery', 'Contact'].map((item) => (
@@ -728,11 +737,8 @@ const Footer = () => {
       <div className="container mx-auto px-6">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20">
           <div className="col-span-1 lg:col-span-1">
-            <div className="flex items-center gap-2 mb-8">
-              <div className="w-8 h-8 gold-gradient rounded-full flex items-center justify-center">
-                <span className="text-black font-bold text-lg">R</span>
-              </div>
-              <span className="text-xl font-serif font-bold tracking-widest text-white uppercase">Ramdev Builders</span>
+            <div className="mb-8">
+              <Logo />
             </div>
             <p className="text-gray-500 text-sm leading-relaxed mb-8">
               Redefining luxury real estate with architectural brilliance and uncompromising quality since 2005.
@@ -794,8 +800,20 @@ const Footer = () => {
 };
 
 export default function App() {
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setShowScrollTop(window.scrollY > 500);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
-    <div className="min-h-screen bg-black selection:bg-gold selection:text-black">
+    <div className="min-h-screen bg-black selection:bg-gold selection:text-black scroll-smooth">
       <Navbar />
       <main>
         <Hero />
@@ -809,6 +827,21 @@ export default function App() {
         <Contact />
       </main>
       <Footer />
+
+      {/* Scroll to Top */}
+      <AnimatePresence>
+        {showScrollTop && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.5 }}
+            onClick={scrollToTop}
+            className="fixed bottom-10 right-10 z-50 w-12 h-12 gold-gradient rounded-full flex items-center justify-center text-black shadow-2xl hover:scale-110 transition-transform"
+          >
+            <ChevronLeft className="w-6 h-6 rotate-90" />
+          </motion.button>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
