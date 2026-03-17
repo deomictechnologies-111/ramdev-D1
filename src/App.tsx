@@ -97,7 +97,7 @@ const Logo = () => (
     </div>
     <div className="flex flex-col">
       <span className="text-xl font-serif font-bold tracking-[0.2em] text-white leading-none">RAMDEV</span>
-      <span className="text-[8px] tracking-[0.3em] text-gold font-bold uppercase">Developers & Builders</span>
+      <span className="text-[8px] tracking-[0.3em] text-gold font-bold uppercase mt-1">Developers & Builders</span>
     </div>
   </div>
 );
@@ -168,7 +168,8 @@ const Hero = () => {
 
   useEffect(() => {
     const loadHero = async () => {
-      const img = await generateProjectImage("A cinematic, ultra-luxurious real estate development hero image. A futuristic yet elegant architectural masterpiece, a mix of glass, gold accents, and lush tropical greenery. Sunset lighting, 8k resolution, architectural photography style, inspired by Della Townships resort luxury.");
+      // Small delay to prevent hitting RPS limit on load
+      const img = await generateProjectImage("A cinematic, ultra-luxurious real estate development hero image. A futuristic yet elegant architectural masterpiece with curved balconies, integrated into a lush tropical landscape with palm trees. Sunset lighting, 8k resolution, architectural photography style, inspired by Della Townships resort luxury.", 500);
       if (img) setHeroImage(img);
     };
     loadHero();
@@ -197,7 +198,7 @@ const Hero = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.2 }}
         >
-          <span className="text-gold tracking-[0.5em] uppercase text-sm font-bold mb-6 block">Crafting Legacies Since 2005</span>
+          <span className="text-gold tracking-[0.5em] uppercase text-sm font-bold mb-6 block">CRAFTING LEGACIES SINCE 2005</span>
           <h1 className="text-5xl md:text-8xl font-serif font-bold mb-8 leading-tight">
             Elevate Your <br />
             <span className="text-gold-gradient italic">Lifestyle</span>
@@ -241,7 +242,13 @@ const About = () => {
         "Close-up of high-end architectural materials, bronze and glass textures, modern lines.",
         "Sleek architectural lines of a modern luxury skyscraper, futuristic design."
       ];
-      const loaded = await Promise.all(prompts.map(p => generateProjectImage(p)));
+      
+      // Load sequentially with delays to avoid 429
+      const loaded: (string | null)[] = [];
+      for (let i = 0; i < prompts.length; i++) {
+        const img = await generateProjectImage(prompts[i], 1000 * (i + 1));
+        loaded.push(img);
+      }
       setAboutImages(prev => loaded.map((img, i) => img || prev[i]));
     };
     loadAbout();
@@ -330,10 +337,15 @@ const FeaturedProjects = () => {
         "A sleek, futuristic urban skyscraper with a unique twist design, glass and bronze facade, glowing lights at dusk. Modern luxury aesthetic."
       ];
 
-      const loadedProjects = await Promise.all(PROJECTS_DATA.map(async (p, i) => {
-        const img = await generateProjectImage(prompts[i]);
-        return { ...p, image: img || "https://images.unsplash.com/photo-1600585154340-be6199f7d009?auto=format&fit=crop&q=80&w=800" };
-      }));
+      // Load sequentially with delays to avoid 429
+      const loadedProjects = [];
+      for (let i = 0; i < PROJECTS_DATA.length; i++) {
+        const img = await generateProjectImage(prompts[i], 1500 * (i + 1));
+        loadedProjects.push({ 
+          ...PROJECTS_DATA[i], 
+          image: img || "https://images.unsplash.com/photo-1600585154340-be6199f7d009?auto=format&fit=crop&q=80&w=800" 
+        });
+      }
       setProjects(loadedProjects);
     };
     loadProjects();
@@ -405,7 +417,7 @@ const MasterPlan = () => {
 
   useEffect(() => {
     const loadPlan = async () => {
-      const img = await generateProjectImage("An artistic, high-end architectural rendering of a luxury township master plan. Top-down view showing pools, gardens, and modern buildings. Inspired by Della Townships.");
+      const img = await generateProjectImage("An artistic, high-end architectural rendering of a luxury township master plan. Top-down view showing pools, gardens, and modern buildings. Inspired by Della Townships.", 2000);
       if (img) setPlanImage(img);
     };
     loadPlan();
@@ -511,7 +523,13 @@ const Gallery = () => {
         "Outdoor lounge area, fire pit, luxury furniture, lush greenery. Inspired by Della Townships.",
         "Grand lobby of a luxury building, high ceilings, artistic chandelier. Inspired by Della Townships."
       ];
-      const loaded = await Promise.all(prompts.map(p => generateProjectImage(p)));
+      
+      // Load sequentially with delays to avoid 429
+      const loaded: (string | null)[] = [];
+      for (let i = 0; i < prompts.length; i++) {
+        const img = await generateProjectImage(prompts[i], 2500 * (i + 1));
+        loaded.push(img);
+      }
       setGalleryImages(prev => loaded.map((img, i) => img || prev[i]));
     };
     loadGallery();
